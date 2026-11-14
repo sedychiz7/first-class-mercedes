@@ -20,15 +20,23 @@
   const sections = Array.from(document.querySelectorAll('[data-scene]')).filter((el) => !el.classList.contains('bg'));
 
   /* ---------- progressive loading ---------- */
+  // Phones / touch: small photos, opacity-only fades, no parallax.
+  const lite = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+
   function load(layer) {
     const img = layer && layer.querySelector('img');
     if (!img || img.dataset.loaded) return;
+    img.dataset.loaded = '1';
+    if (lite && img.dataset.src) {
+      img.src = img.dataset.src.replace('-1920.webp', '-960.webp');
+      return;
+    }
     if (img.dataset.srcset) img.srcset = img.dataset.srcset;
     if (img.dataset.src) img.src = img.dataset.src;
-    img.dataset.loaded = '1';
   }
   load(layers[0]);
-  const loadRest = () => layers.forEach((l, i) => setTimeout(() => load(l), i * 120));
+  // load the next two photos ahead of time; the rest load as their section approaches
+  const loadRest = () => layers.slice(1, 3).forEach((l, i) => setTimeout(() => load(l), 300 + i * 300));
   if (document.readyState === 'complete') loadRest();
   else window.addEventListener('load', loadRest);
 
@@ -59,7 +67,16 @@
       if (!layer) return;
       const img = layer.querySelector('img');
 
-      if (!first) {
+      // start loading a section's photo well before it arrives
+      ScrollTrigger.create({ trigger: section, start: 'top 250%', once: true, onEnter: () => load(layer) });
+
+      if (!first && lite) {
+        // phones: plain crossfade, composited on the GPU
+        gsap.fromTo(layer, { opacity: 0 }, {
+          opacity: 1, ease: 'none',
+          scrollTrigger: { trigger: section, start: 'top 85%', end: 'top 30%', scrub: true },
+        });
+      } else if (!first) {
         // feathered wipe-in + settle, scrubbed to scroll
         gsap.fromTo(layer,
           { '--p': 0, opacity: 0.35, scale: 1.12 },
@@ -73,6 +90,7 @@
       }
       first = false;
 
+      if (lite) return;
       // parallax drift while the section is in view
       gsap.fromTo(img, { yPercent: -5 }, {
         yPercent: 5, ease: 'none',

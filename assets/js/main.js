@@ -206,6 +206,8 @@
      MOTION
      ========================================================= */
   gsap.registerPlugin(ScrollTrigger);
+  // Phones resize the viewport when the address bar shows/hides; don't re-layout for that.
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   // ---------- smooth scroll ----------
   if (typeof window.Lenis !== 'undefined') {
@@ -267,20 +269,25 @@
     .add(() => intro.play());
 
   // ---------- wordmark wheel: spins up on intro, then turns with scroll ----------
+  // The spinning <g> sits inside translate(50 50), so rotate(deg) turns it about the wheel centre.
+  // Angles are tweened on plain objects and written to the SVG attribute directly.
+  const spin = (el, state) => () => el.setAttribute('transform', `rotate(${(state.intro + state.scroll).toFixed(2)})`);
   const heroWheel = $('.wa .wheel-spin');
   if (heroWheel) {
-    gsap.set(heroWheel, { svgOrigin: '50 50', rotation: -540 });
-    intro.to(heroWheel, { rotation: 0, duration: 2.4, ease: 'expo.out' }, 1.2);
-    gsap.to(heroWheel, {
-      rotation: '+=720', ease: 'none',
+    const st = { intro: -540, scroll: 0 };
+    const apply = spin(heroWheel, st);
+    apply();
+    intro.to(st, { intro: 0, duration: 2.4, ease: 'expo.out', onUpdate: apply }, 1.2);
+    gsap.to(st, {
+      scroll: 720, ease: 'none', onUpdate: apply,
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
     });
   }
   const brandWheel = $('.brand-spin');
   if (brandWheel) {
-    gsap.set(brandWheel, { svgOrigin: '50 50' });
-    gsap.to(brandWheel, {
-      rotation: 1440, ease: 'none',
+    const st = { intro: 0, scroll: 0 };
+    gsap.to(st, {
+      scroll: 1440, ease: 'none', onUpdate: spin(brandWheel, st),
       scrollTrigger: { start: 0, end: 'max', scrub: 0.8 },
     });
   }
