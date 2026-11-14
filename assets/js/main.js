@@ -95,6 +95,97 @@
   }
   function stopWave() { waveRunning = false; cancelAnimationFrame(waveRaf); }
 
+  /* ---------- reviews (data in assets/js/reviews.js) ---------- */
+  const reviewsSection = $('.reviews');
+  const reviewData = (window.FCM_REVIEWS || []).filter((r) => r && r.text && r.name);
+  const reviewLinks = window.FCM_REVIEW_LINKS || {};
+  const reviewsMarquee = motion && reviewData.length >= 6;
+
+  $$('[data-review-link]').forEach((a) => {
+    const url = reviewLinks[a.dataset.reviewLink];
+    if (url) { a.href = url; a.hidden = false; }
+    else if (a.dataset.reviewLink !== 'facebook') a.hidden = true;
+  });
+
+  function starsEl(rating) {
+    const wrap = document.createElement('span');
+    wrap.className = 'stars';
+    wrap.setAttribute('role', 'img');
+    wrap.setAttribute('aria-label', `${rating.toFixed(1)} out of 5 stars`);
+    for (let i = 1; i <= 5; i++) {
+      const s = document.createElement('i');
+      s.textContent = '★';
+      if (i > Math.round(rating)) s.className = 'off';
+      wrap.appendChild(s);
+    }
+    return wrap;
+  }
+
+  const clampRating = (r) => Math.min(5, Math.max(1, Number(r.rating) || 5));
+
+  function reviewCard(r) {
+    const el = document.createElement('article');
+    el.className = 'review';
+    const top = document.createElement('div');
+    top.className = 'review__top';
+    top.appendChild(starsEl(clampRating(r)));
+    if (r.service) {
+      const tag = document.createElement('span');
+      tag.className = 'review__tag mono';
+      tag.textContent = r.service;
+      top.appendChild(tag);
+    }
+    const quote = document.createElement('blockquote');
+    quote.textContent = r.text;
+    const who = document.createElement('div');
+    who.className = 'review__who';
+    const avatar = document.createElement('span');
+    avatar.className = 'review__avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = r.name.trim().charAt(0).toUpperCase();
+    const info = document.createElement('div');
+    const name = document.createElement('b');
+    name.textContent = r.name;
+    info.appendChild(name);
+    if (r.car) {
+      const car = document.createElement('span');
+      car.textContent = r.car;
+      info.appendChild(car);
+    }
+    who.append(avatar, info);
+    if (r.source) {
+      const src = document.createElement('span');
+      src.className = 'review__src mono';
+      src.textContent = 'via ' + r.source;
+      who.appendChild(src);
+    }
+    el.append(top, quote, who);
+    return el;
+  }
+
+  if (reviewData.length) {
+    const empty = $('.reviews__empty');
+    empty.hidden = true;
+    empty.classList.remove('reveal');
+    $('.reviews__summary').hidden = false;
+    $('.reviews__rows').hidden = false;
+    const avg = reviewData.reduce((t, r) => t + clampRating(r), 0) / reviewData.length;
+    $('.reviews__avg').textContent = avg.toFixed(1);
+    $('.reviews__count').textContent = reviewData.length;
+    $('.reviews__summary .stars').replaceWith(starsEl(avg));
+
+    const tracks = $$('.reviews__track');
+    if (reviewsMarquee) {
+      reviewData.forEach((r, i) => tracks[i % 2].appendChild(reviewCard(r)));
+    } else {
+      reviewsSection.classList.add('is-static');
+      reviewData.forEach((r) => tracks[0].appendChild(reviewCard(r)));
+    }
+  } else {
+    $('.reviews__summary').classList.remove('reveal');
+    reviewsSection.classList.add('reviews--empty');
+  }
+
   /* =========================================================
      NO-MOTION FALLBACK
      ========================================================= */
@@ -352,6 +443,57 @@
     yPercent: 60, autoAlpha: 0, duration: 1, stagger: 0.06, ease: 'expo.out',
     scrollTrigger: { trigger: '.models__list', start: 'top 80%' },
   });
+
+  // ---------- reviews marquee ----------
+  if (reviewsMarquee) {
+    const cloneInto = (track, card) => {
+      const k = card.cloneNode(true);
+      k.setAttribute('aria-hidden', 'true');
+      track.appendChild(k);
+    };
+    const loops = $$('.reviews__track').map((track, i) => {
+      // repeat the cards until one set is wider than the screen, then clone the whole set once
+      const originals = Array.from(track.children);
+      let guard = 0;
+      while (track.scrollWidth < window.innerWidth * 1.2 && guard++ < 10) originals.forEach((c) => cloneInto(track, c));
+      Array.from(track.children).forEach((c) => cloneInto(track, c));
+      const dur = track.children.length * 4.5;
+      const tl = i % 2
+        ? gsap.fromTo(track, { xPercent: -50 }, { xPercent: 0, duration: dur, ease: 'none', repeat: -1 })
+        : gsap.to(track, { xPercent: -50, duration: dur, ease: 'none', repeat: -1 });
+      track.parentElement.addEventListener('pointerenter', () => gsap.to(tl, { timeScale: 0, duration: 0.6, overwrite: true }));
+      track.parentElement.addEventListener('pointerleave', () => gsap.to(tl, { timeScale: 1, duration: 0.6, overwrite: true }));
+      return tl;
+    });
+    // only run while on screen
+    ScrollTrigger.create({
+      trigger: '.reviews', start: 'top bottom', end: 'bottom top',
+      onToggle: (self) => loops.forEach((tl) => (self.isActive ? tl.play() : tl.pause())),
+    });
+    gsap.from('.reviews__row', {
+      xPercent: (i) => (i % 2 ? -12 : 12), autoAlpha: 0, duration: 1.6, stagger: 0.15, ease: 'expo.out',
+      scrollTrigger: { trigger: '.reviews__rows', start: 'top 85%' },
+    });
+  } else if (reviewData.length) {
+    gsap.from('.reviews__track .review', {
+      y: 60, autoAlpha: 0, duration: 1.1, stagger: 0.1, ease: 'expo.out',
+      scrollTrigger: { trigger: '.reviews__rows', start: 'top 85%' },
+    });
+  }
+  if (reviewData.length) {
+    const avgEl = $('.reviews__avg');
+    const target = parseFloat(avgEl.textContent);
+    const o = { v: 0 };
+    gsap.to(o, {
+      v: target, duration: 1.8, ease: 'power3.out',
+      onUpdate: () => (avgEl.textContent = o.v.toFixed(1)),
+      scrollTrigger: { trigger: '.reviews__summary', start: 'top 90%' },
+    });
+    gsap.from('.reviews__summary .stars i', {
+      scale: 0, rotate: -90, duration: 0.6, stagger: 0.08, ease: 'back.out(3)',
+      scrollTrigger: { trigger: '.reviews__summary', start: 'top 90%' },
+    });
+  }
 
   // ---------- contact ----------
   gsap.from('.cta-row', {

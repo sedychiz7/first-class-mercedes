@@ -60,6 +60,7 @@
       <a href="#diagnostics">Diagnostics</a>
       <a href="#team">Team</a>
       <a href="#models">Models</a>
+      <a href="#reviews">Reviews</a>
       <a href="#contact">Contact</a>
     </nav>
     <!-- TODO: replace the number below with the real workshop number -->
@@ -73,6 +74,7 @@
       <a href="#diagnostics">Diagnostics</a>
       <a href="#team">Team</a>
       <a href="#models">Models</a>
+      <a href="#reviews">Reviews</a>
       <a href="#contact">Contact</a>
     </nav>
   </div>
@@ -394,10 +396,39 @@
       <div class="why__item reveal"><h3>A real team</h3><p>Several mechanics means your car gets worked on, not parked.</p></div>
     </section>
 
+    <!-- ====== REVIEWS (content comes from assets/js/reviews.js) ====== -->
+    <section class="reviews" id="reviews">
+      <div class="reviews__head">
+        <div class="section-head">
+          <p class="eyebrow mono">07 · Reviews</p>
+          <h2 class="split-lines"><span class="line">Don't take</span><span class="line">our word for it.</span></h2>
+        </div>
+        <div class="reviews__summary reveal" hidden>
+          <span class="reviews__score"><span class="reviews__avg">5.0</span><small>/5</small></span>
+          <span class="stars" aria-hidden="true"></span>
+          <p class="mono"><span class="reviews__count">0</span> customer reviews</p>
+        </div>
+      </div>
+
+      <div class="reviews__rows" hidden>
+        <div class="reviews__row"><div class="reviews__track"></div></div>
+        <div class="reviews__row reviews__row--rev"><div class="reviews__track"></div></div>
+      </div>
+
+      <div class="reviews__empty reveal">
+        <p>Our customers talk about us on Facebook. Read what they say, and if we've worked on your car, leave a review of your own.</p>
+      </div>
+
+      <div class="reviews__cta reveal">
+        <a class="btn btn--ghost magnetic" data-review-link="facebook" href="#" target="_blank" rel="noopener"><span>Read &amp; leave a review on Facebook</span></a>
+        <a class="btn btn--ghost magnetic" data-review-link="google" href="#" target="_blank" rel="noopener" hidden><span>Review us on Google</span></a>
+      </div>
+    </section>
+
     <!-- ====== CONTACT ====== -->
     <section class="contact" id="contact">
       <div class="contact__big">
-        <p class="eyebrow mono">07 · Get in touch</p>
+        <p class="eyebrow mono">08 · Get in touch</p>
         <h2 class="contact__title split-lines"><span class="line">Warning light on?</span><span class="line line--accent">Let's plug in.</span></h2>
       </div>
       <div class="contact__grid">
@@ -432,6 +463,7 @@
   <script src="assets/vendor/gsap.min.js" defer></script>
   <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
   <script src="assets/vendor/lenis.min.js" defer></script>
+  <script src="assets/js/reviews.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </body>
 </html>

@@ -12,6 +12,7 @@ All three libraries are stored in `assets/vendor/`, so the site needs no outside
 index.html            all page content
 assets/css/style.css  styles and design tokens (colours at the top)
 assets/js/main.js     animations and interactions
+assets/js/reviews.js  customer reviews list (edit this to add reviews)
 assets/vendor/        gsap, ScrollTrigger, lenis
 assets/favicon.svg
 ```
@@ -38,7 +39,23 @@ python3 -m http.server 8000
 - [ ] Exact workshop address or Google Maps pin
 - [ ] Team: real names, roles and photos (currently initials)
 - [ ] Workshop and job photos
-- [ ] Customer reviews (no section yet)
+- [ ] Customer reviews: add them in `assets/js/reviews.js` (see below)
+- [ ] Facebook reviews link and, later, a Google review link (also in `assets/js/reviews.js`)
+
+## Adding reviews
+
+Open `assets/js/reviews.js` and add one block per review inside `window.FCM_REVIEWS = [ ... ]`:
+
+```js
+{ name: 'Tendai M.', car: 'E-Class W212', service: 'Airmatic', rating: 5,
+  text: 'Exactly what the customer wrote.', source: 'Facebook' },
+```
+
+Only use real reviews, copied word for word, and ideally with the customer's OK.
+- 0 reviews: the section shows a "read our reviews on Facebook" message and button.
+- 1 to 5 reviews: one swipeable row of cards.
+- 6 or more: two rows that scroll in opposite directions and pause on hover.
+The average score and star count are calculated automatically.
 
 ## Notes
 
