@@ -539,6 +539,9 @@
     });
   }
 
+  // photographic backgrounds (assets/js/backgrounds.js), set up last so pinned sections are measured
+  if (window.FCM_initBackgrounds) window.FCM_initBackgrounds();
+
   window.addEventListener('load', () => ScrollTrigger.refresh());
 
   /* ---------- nav behaviour (both modes) ---------- */

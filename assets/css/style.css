@@ -426,3 +426,64 @@ section { position: relative; padding: clamp(96px, 14vw, 180px) var(--gutter); }
 [hidden] { display: none !important; }
 .reviews--empty .reviews__head { margin-bottom: 32px; }
 @media (max-width: 480px) { .review__src { display: none; } .review { padding: 24px; } .review blockquote { font-size: 17px; } }
+
+/* =========================================================
+   Scroll-driven photographic backgrounds
+   ========================================================= */
+main, .footer { position: relative; z-index: 1; }
+.bgstage {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  height: 100vh; height: 100lvh; background: var(--bg);
+}
+.bg {
+  position: absolute; inset: 0; opacity: 0; will-change: opacity, transform;
+  --p: 1;
+}
+.bg:first-child { opacity: 1; }
+.bg img {
+  position: absolute; left: 0; top: -8%; width: 100%; height: 116%;
+  object-fit: cover; object-position: var(--pos, 50% 50%);
+  filter: grayscale(var(--gray, .35)) brightness(var(--bright, .42)) contrast(1.08) saturate(.85);
+  will-change: transform;
+}
+/* colour grade per scene */
+.bg::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; mix-blend-mode: soft-light; opacity: .55;
+  background: linear-gradient(160deg, #2a7fff, #0a0b0d 70%);
+}
+.bg[data-tone="warm"]::before { background: linear-gradient(160deg, #e8a35a, #0a0b0d 70%); }
+.bg[data-tone="neutral"]::before { background: linear-gradient(160deg, #c9ced6, #0a0b0d 70%); opacity: .35; }
+/* vignette + edge fade into the page colour */
+.bgstage::after {
+  content: ""; position: absolute; inset: 0; z-index: 50;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 45%, transparent 35%, rgba(10, 11, 13, .82) 100%),
+    linear-gradient(180deg, rgba(10, 11, 13, .55), transparent 22%, transparent 70%, rgba(10, 11, 13, .7));
+}
+/* JS-driven feathered wipe (only when motion is on) */
+.js:not(.no-motion) .bg:not(:first-child) {
+  -webkit-mask-image: linear-gradient(to top, #000 calc(var(--p) * 150% - 50%), transparent calc(var(--p) * 150%));
+  mask-image: linear-gradient(to top, #000 calc(var(--p) * 150% - 50%), transparent calc(var(--p) * 150%));
+}
+/* fallback (no GSAP / reduced motion): class toggled by IntersectionObserver */
+.no-motion .bg { transition: opacity .8s ease; }
+.no-motion .bg.is-active { opacity: 1; }
+
+/* frosted surfaces so content reads over photos */
+.side, .card, .member, .review, .diag__steps li, .screen, .contact__map, .why__item {
+  -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
+}
+.side, .member { background: rgba(17, 19, 23, .68); }
+.card { background: linear-gradient(180deg, rgba(23, 26, 32, .78), rgba(17, 19, 23, .66)); }
+.review { background: linear-gradient(180deg, rgba(23, 26, 32, .8), rgba(17, 19, 23, .7)); }
+.diag__steps li { background: rgba(17, 19, 23, .62); }
+.screen { background: rgba(7, 10, 14, .86); }
+.why { background: rgba(255, 255, 255, .07); }
+.why__item { background: rgba(10, 11, 13, .58); }
+.diag { background: none; }
+.hero__grid { opacity: .35; }
+.hero__glow { opacity: .7; }
+.models__list li::before { background: rgba(23, 26, 32, .7); }
+.marquee { background: rgba(10, 11, 13, .35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.footer__big { color: rgba(255, 255, 255, .05); }
+.footer__credits { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
