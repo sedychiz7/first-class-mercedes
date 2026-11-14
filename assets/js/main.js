@@ -438,6 +438,22 @@
     scrollTrigger: { trigger: '.team__grid', start: 'top 80%' },
   });
 
+  // team card photos: clip reveal, inner parallax, zoom on hover
+  $$('.member__photo').forEach((ph, i) => {
+    const img = $('img', ph);
+    gsap.fromTo(ph, { clipPath: 'inset(100% 0% 0% 0% round 12px)' }, {
+      clipPath: 'inset(0% 0% 0% 0% round 12px)', duration: 1.4, delay: i * 0.1, ease: 'expo.inOut',
+      scrollTrigger: { trigger: '.team__grid', start: 'top 80%' },
+    });
+    gsap.fromTo(img, { yPercent: -6, scale: 1.25 }, {
+      yPercent: 6, scale: 1.04, ease: 'none',
+      scrollTrigger: { trigger: ph, start: 'top bottom', end: 'bottom top', scrub: true },
+    });
+    const card = ph.closest('.member');
+    card.addEventListener('pointerenter', () => gsap.to(ph, { scale: 1.02, duration: 0.8, ease: 'expo.out' }));
+    card.addEventListener('pointerleave', () => gsap.to(ph, { scale: 1, duration: 0.8, ease: 'expo.out' }));
+  });
+
   // ---------- models ----------
   gsap.from('.models__list li', {
     yPercent: 60, autoAlpha: 0, duration: 1, stagger: 0.06, ease: 'expo.out',

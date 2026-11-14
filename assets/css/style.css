@@ -487,3 +487,34 @@ main, .footer { position: relative; z-index: 1; }
 .marquee { background: rgba(10, 11, 13, .35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .footer__big { color: rgba(255, 255, 255, .05); }
 .footer__credits { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- team card photos ---------- */
+.member__photo { isolation: isolate; place-items: end start; padding: 18px; }
+.member__photo img {
+  position: absolute; left: 0; top: -6%; width: 100%; height: 112%; object-fit: cover; z-index: -2;
+  filter: grayscale(.4) brightness(.55) contrast(1.1);
+  transition: filter .8s var(--ease);
+}
+.member:hover .member__photo img { filter: grayscale(0) brightness(.72) contrast(1.1); }
+.member__photo::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(10, 11, 13, .1) 30%, rgba(10, 11, 13, .85)),
+              linear-gradient(160deg, rgba(232, 163, 90, .22), transparent 55%);
+}
+.member--lead .member__photo::before {
+  background: linear-gradient(180deg, rgba(10, 11, 13, .05) 30%, rgba(10, 11, 13, .85)),
+              linear-gradient(160deg, rgba(92, 200, 255, .3), transparent 60%);
+}
+.member__photo .member__mono {
+  font-size: 44px; color: rgba(255, 255, 255, .92); line-height: 1; letter-spacing: -.04em;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, .5);
+}
+.member--lead .member__photo .member__mono { color: var(--accent); }
+.member__icon {
+  position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; padding: 9px;
+  border-radius: 50%; color: #e8c49a; background: rgba(10, 11, 13, .45);
+  border: 1px solid rgba(255, 255, 255, .14); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: transform .8s var(--ease);
+}
+.member--lead .member__icon, .member:nth-child(2) .member__icon { color: var(--accent); }
+.member:hover .member__icon { transform: rotate(-12deg) scale(1.08); }
