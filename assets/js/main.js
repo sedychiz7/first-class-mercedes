@@ -266,6 +266,25 @@
     .to('.loader__bar span', { scaleX: 1, duration: 1.6, ease: 'power2.inOut' }, 0)
     .add(() => intro.play());
 
+  // ---------- wordmark wheel: spins up on intro, then turns with scroll ----------
+  const heroWheel = $('.wa .wheel-spin');
+  if (heroWheel) {
+    gsap.set(heroWheel, { svgOrigin: '50 50', rotation: -540 });
+    intro.to(heroWheel, { rotation: 0, duration: 2.4, ease: 'expo.out' }, 1.2);
+    gsap.to(heroWheel, {
+      rotation: '+=720', ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
+    });
+  }
+  const brandWheel = $('.brand-spin');
+  if (brandWheel) {
+    gsap.set(brandWheel, { svgOrigin: '50 50' });
+    gsap.to(brandWheel, {
+      rotation: 1440, ease: 'none',
+      scrollTrigger: { start: 0, end: 'max', scrub: 0.8 },
+    });
+  }
+
   // ---------- hero on scroll ----------
   gsap.to('.hero__content', {
     yPercent: -30, autoAlpha: 0.1, ease: 'none',
